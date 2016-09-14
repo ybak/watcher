@@ -1,6 +1,8 @@
 # watcher
 
-> My cat&#39;s pajamas app
+> 一个市长信箱抓取程序, 原理如下图所示:
+
+![逻辑图](./docs/watcher.png)
 
 
 ## Dev
