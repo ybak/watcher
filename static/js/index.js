@@ -12,7 +12,7 @@ $(function () {
         ipcRenderer.send('search-keyword', $('input.keyword').val());
         ipcRenderer.on('search-reply', function(event, data) {
             $('#waitModal').modal('hide');
-            if (data.content) {
+            if (data.mails) {
                 var template = Handlebars.compile($('#template').html());
                 $('div.list-group').html(template(data));
             }

@@ -64,18 +64,18 @@
 	</div>
 </div>
 <script id="template" type="x-tmpl-mustache">
-{{#content}}
+{{#mails}}
 <a class="list-group-item mail-item">
     <h3 class="list-group-item-heading">{{title}}</h3>
     <p class="list-group-item-text">{{content}}</p>
     <hr style="margin:3px">
     <p class="list-group-item-text result">{{result}}</p>
     <div>
-        <span>{{formatDate createDate}}</span>
+        <span>{{formatDate publishDate}}</span>
         <button type="button" class="btn btn-default btn-xs updateBtn" data-id="{{id}}" data-url="{{url}}">更新</button>
     </div>
 </a>
-{{/content}}
+{{/mails}}
 </script>
 </body>
 </html>

@@ -45,10 +45,19 @@ app.on('ready', () => {
 })
 
 
-ipcMain.on('search-keyword', function (event, arg) {
-    console.log('channel "search-keyword" on msg:' + arg);
-    let mails = require('./libs/data.json');
-    event.sender.send('search-reply', mails);
+const request = require('request'),
+    async = require('async'),
+    db = require('./libs/dbPreload'),
+    cheerio = require('cheerio');
+
+ipcMain.on('search-keyword', function (event, keyword) {
+    console.log('channel "search-keyword" on msg:' + keyword);
+
+    let match = {$regex: eval('/' + keyword + '/')};
+    var query = keyword ? {$or: [{title: match}, {content: match}]} : {};
+    db.find(query).sort({publishDate: -1}).limit(100).exec(function (err, mails) {
+        event.sender.send('search-reply', {mails: mails});
+    });
 });
 
 
@@ -63,11 +72,6 @@ ipcMain.on('start-crawl', (event, arg) => {
     };
     crawler(updater);
 });
-
-const request = require('request'),
-    async = require('async'),
-    db = require('./libs/dbPreload'),
-    cheerio = require('cheerio');
 
 function UrlCrawler(targetUrl) {
     return {
