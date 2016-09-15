@@ -47,6 +47,6 @@ app.on('ready', () => {
 
 ipcMain.on('search-keyword', function(event, arg) {
 	console.log(arg);  // prints "ping"
-	event.sender.send('search-reply', JSON.stringify({content: []}));
+	event.sender.send('search-reply', require('./libs/data.json'));
 });
 
