@@ -16,13 +16,24 @@ $(function () {
                 var template = Handlebars.compile($('#template').html());
                 $('div.list-group').html(template(data));
             }
-        })
+        });
     });
 
     //增量更新全部邮件
     $('button.update-all').click(function (e) {
         e.preventDefault();
-        connect();
+
+        let channel = 'crawl-job-' + Date.now();
+        ipcRenderer.on(channel, function(event, msg) {
+            console.log('Msg Received: ' + msg);
+            let progress = msg.progress;
+            $('#progressModal .progress-bar').width(progress + '%');
+            if (progress >= 100) {
+                $('#progressModal').modal('hide');
+            }
+        });
+        ipcRenderer.send('start-crawl', channel);
+
         $('#progressModal .progress-bar').width('0%');
         $('#progressModal').modal('show');
 
@@ -40,34 +51,5 @@ $(function () {
             $target.closest('.mail-item').find('.result').text(data.result);
         });
     });
-
-    var stompClient = null;
-
-    function connect() {
-        var socket = new SockJS('/ws');
-        disconnect();
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-            var jobId = Date.now();
-
-            stompClient.subscribe('/topic/progress/' + jobId, function (msg) {
-                console.log('Msg Received: ' + msg);
-                var body = JSON.parse(msg.body);
-                $('#progressModal .progress-bar').width(body.progress + '%');
-                if (body.progress >= 100) {
-                    $('#progressModal').modal('hide');
-                }
-            });
-            stompClient.send("/app/craw/start", {}, jobId);
-        });
-    }
-
-    function disconnect() {
-        if (stompClient != null) {
-            stompClient.disconnect();
-        }
-        console.log("Disconnected");
-    }
 
 });

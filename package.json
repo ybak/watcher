@@ -25,6 +25,8 @@
     "electron"
   ],
   "dependencies": {
+    "async": "^2.0.1",
+    "cheerio": "^0.22.0",
     "electron-debug": "^1.0.0"
   },
   "devDependencies": {
