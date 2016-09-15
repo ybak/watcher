@@ -1,6 +1,6 @@
 'use strict';
 const electron = require('electron');
-
+const ipcMain = electron.ipcMain;
 const app = electron.app;
 
 // adds debug features like hotkeys for triggering dev tools and reload
@@ -42,4 +42,11 @@ app.on('activate', () => {
 
 app.on('ready', () => {
 	mainWindow = createMainWindow();
+})
+
+
+ipcMain.on('search-keyword', function(event, arg) {
+	console.log(arg);  // prints "ping"
+	event.sender.send('search-reply', JSON.stringify({content: []}));
 });
+

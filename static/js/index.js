@@ -1,3 +1,5 @@
+const ipcRenderer = nodeRequire('electron').ipcRenderer;
+
 Handlebars.registerHelper('formatDate', function(date) {
     return  moment(date).format('YYYY-MM-DD hh:mm:ss');
 });
@@ -7,16 +9,14 @@ $(function () {
     $('form.searchForm').submit(function (event) {
         $('#waitModal').modal('show');
         event.preventDefault();
-        $.get('/search?keyword=' + $('input.keyword').val(), function (data) {
+        ipcRenderer.send('search-keyword', $('input.keyword').val());
+        ipcRenderer.on('search-reply', function(event, data) {
             $('#waitModal').modal('hide');
             if (data.content) {
                 var template = Handlebars.compile($('#template').html());
                 $('div.list-group').html(template(data));
             }
-        }).fail(function (e) {
-            $('#waitModal').modal('hide');
-            alert(e.responseJSON.message);
-        });
+        })
     });
 
     //增量更新全部邮件
