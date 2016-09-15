@@ -66,6 +66,7 @@ ipcMain.on('start-crawl', (event, arg) => {
 
 const request = require('request'),
     async = require('async'),
+    db = require('./libs/dbPreload'),
     cheerio = require('cheerio');
 
 function UrlCrawler(targetUrl) {
@@ -85,12 +86,12 @@ function pageCrawl(page, totalPage, updater, crawlNextPage) {
     new UrlCrawler('http://12345.chengdu.gov.cn/moreMail?page=' + page).startCrawl(($) => {
         var $pageMails = $('div.left5 ul li.f12px');
 
-        async.eachSeries($pageMails, function iteratee(item, nextMail) {
+        async.eachOfLimit($pageMails, 10, function iteratee(item, key, nextMail) {
             let $item = $(item),
                 mailDetailUrl = $item.find('a').prop('href'),
                 divs = $item.find('div');
             var mail = {
-                id : mailDetailUrl.match(/\d+/g)[0],
+                _id: mailDetailUrl.match(/\d+/g)[0],
                 title: $(divs[0]).text().trim(),
                 sender: $(divs[1]).text().trim(),
                 receiveUnit: $(divs[2]).text().trim(),
@@ -103,6 +104,14 @@ function pageCrawl(page, totalPage, updater, crawlNextPage) {
                 mail.content = $($('.rightside1 td.td2')[1]).text().trim();
                 mail.result = $('.rightside1 tbody tr:last-child').text().trim();
                 mail.publishDate = $($('.rightside1 td.td32')[0]).text().trim() || $($('.rightside1 td.td32')[1]).text().trim();
+
+                console.log(mail._id);
+
+                db.update({_id: mail._id}, mail, {upsert: true}, function (err, newDoc) {
+                    if (err) {
+                        throw err;
+                    }
+                });
 
                 nextMail();
             });

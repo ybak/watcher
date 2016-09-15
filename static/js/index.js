@@ -25,7 +25,7 @@ $(function () {
 
         let channel = 'crawl-job-' + Date.now();
         ipcRenderer.on(channel, function(event, msg) {
-            console.log('Msg Received: ' + msg);
+            console.log('Msg Received: ' + JSON.stringify(msg));
             let progress = msg.progress;
             $('#progressModal .progress-bar').width(progress + '%');
             if (progress >= 100) {
