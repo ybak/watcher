@@ -90,6 +90,7 @@ function pageCrawl(page, totalPage, updater, crawlNextPage) {
                 mailDetailUrl = $item.find('a').prop('href'),
                 divs = $item.find('div');
             var mail = {
+                id : mailDetailUrl.match(/\d+/g)[0],
                 title: $(divs[0]).text().trim(),
                 sender: $(divs[1]).text().trim(),
                 receiveUnit: $(divs[2]).text().trim(),
@@ -103,7 +104,6 @@ function pageCrawl(page, totalPage, updater, crawlNextPage) {
                 mail.result = $('.rightside1 tbody tr:last-child').text().trim();
                 mail.publishDate = $($('.rightside1 td.td32')[0]).text().trim() || $($('.rightside1 td.td32')[1]).text().trim();
 
-                console.log(JSON.stringify(mail));
                 nextMail();
             });
         }, function done() {
