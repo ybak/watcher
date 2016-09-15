@@ -68,19 +68,48 @@ const request = require('request'),
     async = require('async'),
     cheerio = require('cheerio');
 
-function pageCrawl(page, totalPage, updater, crawlNextPage) {
-    let pageUrl = 'http://12345.chengdu.gov.cn/moreMail?page=' + page;
-    request(pageUrl, (err, response, body) => {
-        if (err) throw err;
-        let $ = cheerio.load(body),
-        $pageMails = $('div.left5 ul li.f12px');
-        $pageMails.each(function(i, ele){
-            let mailDetailUrl = $(this).find('a').prop('href');
-            console.log(mailDetailUrl);
-        });
+function UrlCrawler(targetUrl) {
+    return {
+        targetUrl: targetUrl,
+        startCrawl: function (processDom) {
+            request(this.targetUrl, (err, response, body) => {
+                if (err) throw err;
+                var $ = cheerio.load(body);
+                processDom($)
+            });
+        }
+    };
+}
 
-        crawlNextPage();
-        updater.updateProgress(Math.floor(page * 100 / totalPage));
+function pageCrawl(page, totalPage, updater, crawlNextPage) {
+    new UrlCrawler('http://12345.chengdu.gov.cn/moreMail?page=' + page).startCrawl(($) => {
+        var $pageMails = $('div.left5 ul li.f12px');
+
+        async.eachSeries($pageMails, function iteratee(item, nextMail) {
+            let $item = $(item),
+                mailDetailUrl = $item.find('a').prop('href'),
+                divs = $item.find('div');
+            var mail = {
+                title: $(divs[0]).text().trim(),
+                sender: $(divs[1]).text().trim(),
+                receiveUnit: $(divs[2]).text().trim(),
+                status: $(divs[3]).text().trim(),
+                category: $(divs[4]).text().trim(),
+                views: $(divs[5]).text().trim()
+            };
+
+            new UrlCrawler('http://12345.chengdu.gov.cn/' + mailDetailUrl).startCrawl(($) => {// crawl mail detail
+                mail.content = $($('.rightside1 td.td2')[1]).text().trim();
+                mail.result = $('.rightside1 tbody tr:last-child').text().trim();
+                mail.publishDate = $($('.rightside1 td.td32')[0]).text().trim() || $($('.rightside1 td.td32')[1]).text().trim();
+
+                console.log(JSON.stringify(mail));
+                nextMail();
+            });
+        }, function done() {
+            crawlNextPage();
+            updater.updateProgress(Math.floor(page * 100 / totalPage));
+        });
     });
 }
 
