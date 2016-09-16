@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "postinstall": "install-app-deps",
-    "start": "npm install && npm run compile && electron ./app",
+    "start": "electron ./app",
     "compile": "rimraf app/out && tsc",
     "pack": "npm run compile && build --dir",
     "dist": "npm run compile && build",
