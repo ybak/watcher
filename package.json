@@ -1,46 +1,45 @@
 {
-  "name": "watcher",
-  "productName": "Watcher",
-  "version": "0.0.1",
-  "description": "watch some websites",
-  "license": "MIT",
-  "repository": "ybak/watcher",
-  "author": {
-    "name": "ybakswu",
-    "email": "ybakswu@gmail.com",
-    "url": "test.com"
-  },
+  "private": true,
   "scripts": {
-    "test": "xo",
-    "start": "electron .",
-    "build": "electron-packager . --out=dist --asar --overwrite --all"
+    "postinstall": "install-app-deps",
+    "start": "npm install && npm run compile && electron ./app",
+    "compile": "rimraf app/out && tsc",
+    "pack": "npm run compile && build --dir",
+    "dist": "npm run compile && build",
+    "release": "npm run compile && build"
   },
-  "files": [
-    "index.js",
-    "index.html",
-    "index.css"
-  ],
-  "keywords": [
-    "electron-app",
-    "electron"
-  ],
-  "dependencies": {
-    "async": "^2.0.1",
-    "cheerio": "^0.22.0",
-    "electron-debug": "^1.0.0",
-    "nedb": "^1.8.0"
+  "build": {
+    "asar": false,
+    "appId": "org.ybak",
+    "category": "public.app-category.graphics-design",
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "win": {
+      "publish": ["github", "bintray"]
+    },
+    "linux": {
+      "publish": null,
+      "target": ["deb", "AppImage"]
+    }
   },
   "devDependencies": {
     "devtron": "^1.1.0",
-    "electron-packager": "^8.0.0",
-    "electron": "^1.3.3",
-    "xo": "^0.16.0"
-  },
-  "xo": {
-    "esnext": true,
-    "envs": [
-      "node",
-      "browser"
-    ]
+    "electron-builder": "next",
+    "electron": "1.3.5",
+    "rimraf": "^2.5.4",
+    "typescript": "^1.8.10"
   }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "watcher",
+  "productName": "Watcher",
+  "version": "0.0.1",
+  "description": "watch some websites",
+  "license": "MIT",
+  "repository": "ybak/watcher",
+  "author": {
+    "name": "ybakswu",
+    "email": "ybakswu@gmail.com",
+    "url": "test.com"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "async": "^2.0.1",
+    "cheerio": "^0.22.0",
+    "electron-debug": "^1.0.0",
+    "nedb": "^1.8.0"
+  },
+  "devDependencies": {
+    "devtron": "^1.1.0",
+    "electron": "^1.3.5"
+  }
+}
