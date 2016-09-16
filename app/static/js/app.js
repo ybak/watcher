@@ -5,18 +5,18 @@ Handlebars.registerHelper('formatDate', function(date) {
 });
 
 $(function () {
-    //提交表单
+    //提交查询表单
     $('form.searchForm').submit(function (event) {
         $('#waitModal').modal('show');
         event.preventDefault();
         ipcRenderer.send('search-keyword', $('input.keyword').val());
-        ipcRenderer.on('search-reply', function(event, data) {
-            $('#waitModal').modal('hide');
-            if (data.mails) {
-                var template = Handlebars.compile($('#template').html());
-                $('div.list-group').html(template(data));
-            }
-        });
+    });
+    ipcRenderer.on('search-reply', function(event, data) {
+        $('#waitModal').modal('hide');
+        if (data.mails) {
+            var template = Handlebars.compile($('#template').html());
+            $('div.list-group').html(template(data));
+        }
     });
 
     //增量更新全部邮件
