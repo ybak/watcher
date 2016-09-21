@@ -101,8 +101,8 @@ db.find(query).sort({publishDate: -1}).limit(100).exec(function (err, mails) {
 });
 ```
 #### 3. UI的实现:
-桌面应用的工程目录如图:  
-![逻辑图](./docs/layout.png)  
+桌面应用的工程目录如图:
+![逻辑图](./docs/layout.png)
 我将UI页面放到static文件夹下. 在Electron的进行前端UI开发和普通的Web开发方式一样, 因为Electron的UI进程就是一个Chrome进程. Electron启动时, 主进程会执行index.js文件, index.js将初始化应用的窗口, 设置大小, 并在窗口加载UI入口页面index.html.  
 *代码:index.js*  
 ```JavaScript

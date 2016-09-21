@@ -43,11 +43,15 @@ function UrlCrawler(targetUrl) {
     };
 }
 
-function pageCrawl(page, totalPage, updater, crawlNextPage) {
+function pageCrawl(page, totalPage, updater, crawlNextPage, crawProgress) {
     new UrlCrawler('http://12345.chengdu.gov.cn/moreMail?page=' + page).startCrawl(($) => {
-        var $pageMails = $('div.left5 ul li.f12px');
+        var $pageMails = $('div.left5 ul li.f12px'),
+            sameMailsInPage = 0;
 
         async.eachOfLimit($pageMails, 10, function iteratee(item, key, nextMail) {
+            if(crawProgress.skip){
+                return nextMail();
+            }
             let $item = $(item),
                 mailDetailUrl = $item.find('a').prop('href'),
                 divs = $item.find('div');
@@ -68,9 +72,14 @@ function pageCrawl(page, totalPage, updater, crawlNextPage) {
 
                 console.log(mail._id);
 
-                db.update({_id: mail._id}, mail, {upsert: true}, function (err, newDoc) {
+                db.update({_id: mail._id}, mail, {upsert: true, returnUpdatedDocs: true}, function (err, numReplaced, affectedDocuments, upsert) {
                     if (err) {
                         throw err;
+                    }
+                    if(!upsert && affectedDocuments.result == mail.result){//if a mail are not update
+                        if(++sameMailsInPage == 15){ //if all mails in one page are note update.
+                            crawProgress.skip = true;
+                        }
                     }
                 });
 
@@ -98,12 +107,13 @@ function crawler(updater) {
     new UrlCrawler('http://12345.chengdu.gov.cn/moreMail').startCrawl(($) => {
         var totalSize = $('div.pages script').html().match(/iRecCount = \d+/g)[0].match(/\d+/g)[0],
             totalPageSize = Math.ceil(totalSize / 15),
-            pagesCollection = [];
+            pagesCollection = [],
+            crawProgress = {skip: false};
         for (let i = 1; i <= totalPageSize; i++) {
             pagesCollection.push(i);
         }
         async.eachSeries(pagesCollection, function (page, crawlNextPage) {
-            pageCrawl(page, totalPageSize, updater, crawlNextPage);
+            pageCrawl(page, totalPageSize, updater, crawlNextPage, crawProgress);
         })
     });
 }
