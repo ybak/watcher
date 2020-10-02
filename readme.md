@@ -173,3 +173,4 @@ ipcMain.on('start-crawl', (event, arg) => {
 [4]: https://github.com/caolan/async
 [5]: https://github.com/louischatriot/nedb
 [6]: https://github.com/electron-userland/electron-builder
+# Thanks.
